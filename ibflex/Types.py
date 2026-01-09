@@ -81,6 +81,7 @@ __all__ = [
     "SalesTax",
     "SecurityInfo",
     "StatementOfFundsLine",
+    "StockGrantActivity",
     "SymbolSummary",
     "TierInterestDetail",
     "Trade",
@@ -185,7 +186,7 @@ class FlexStatement(FlexElement):
     ConversionRates: Tuple["ConversionRate", ...] = ()
     HKIPOOpenSubscriptions: Tuple = ()  # TODO
     CommissionCredits: Tuple = ()  # TODO
-    StockGrantActivities: Tuple = ()  # TODO
+    StockGrantActivities: Tuple["StockGrantActivity", ...] = ()
     SLBCollaterals: Tuple = ()  # TODO
     IncentiveCouponAccrualDetails: Tuple = ()  # TODO
     DepositsOnHold: Tuple = ()  # TODO
@@ -455,6 +456,7 @@ class EquitySummaryByReportDateInBase(FlexElement):
     physDel: Optional[decimal.Decimal] = None
     physDelLong: Optional[decimal.Decimal] = None
     physDelShort: Optional[decimal.Decimal] = None
+    currency: Optional[str] = None
     insuredBankDepositRedemptionCashComponentLong: Optional[decimal.Decimal] = None
     insuredBankDepositRedemptionCashComponentShort: Optional[decimal.Decimal] = None
     incentiveCouponAccrualsLong: Optional[decimal.Decimal] = None
@@ -1131,7 +1133,6 @@ class Trade(FlexElement):
     issuerCountryCode: Optional[str] = None
     rtn: Optional[str] = None
     initialInvestment: Optional[decimal.Decimal] = None
-    positionActionID: Optional[str] = None
 
 
 @dataclass(frozen=True)
@@ -1284,7 +1285,6 @@ class Lot(FlexElement):
     relatedTradeID: Optional[str] = None
     rtn: Optional[str] = None
     initialInvestment: Optional[decimal.Decimal] = None
-    positionActionID: Optional[str] = None
 
 
 @dataclass(frozen=True)
@@ -1415,39 +1415,6 @@ class SymbolSummary(FlexElement):
     relatedTradeID: Optional[str] = None
     origTransactionID: Optional[str] = None
     relatedTransactionID: Optional[str] = None
-    positionActionID: Optional[str] = None
-    changeInPrice: Optional[decimal.Decimal] = None
-    changeInQuantity: Optional[decimal.Decimal] = None
-    closePrice: Optional[decimal.Decimal] = None
-    commodityType: Optional[str] = None
-    cost: Optional[decimal.Decimal] = None
-    deliveryType: Optional[str] = None
-    exchOrderId: Optional[str] = None
-    extExecID: Optional[str] = None
-    fifoPnlRealized: Optional[decimal.Decimal] = None
-    fineness: Optional[decimal.Decimal] = None
-    holdingPeriodDateTime: Optional[datetime.datetime] = None
-    ibCommission: Optional[decimal.Decimal] = None
-    ibCommissionCurrency: Optional[str] = None
-    ibExecID: Optional[str] = None
-    ibOrderID: Optional[str] = None
-    initialInvestment: Optional[decimal.Decimal] = None
-    mtmPnl: Optional[decimal.Decimal] = None
-    netCash: Optional[decimal.Decimal] = None
-    notes: Optional[str] = None
-    openCloseIndicator: Optional[enums.OpenClose] = None
-    openDateTime: Optional[datetime.datetime] = None
-    origOrderID: Optional[str] = None
-    rtn: Optional[str] = None
-    serialNumber: Optional[str] = None
-    settleDateTarget: Optional[datetime.date] = None
-    taxes: Optional[decimal.Decimal] = None
-    tradeMoney: Optional[decimal.Decimal] = None
-    tradePrice: Optional[decimal.Decimal] = None
-    transactionID: Optional[str] = None
-    weight: Optional[str] = None
-    whenRealized: Optional[datetime.datetime] = None
-    whenReopened: Optional[datetime.datetime] = None
 
 
 @dataclass(frozen=True)
@@ -1557,7 +1524,6 @@ class AssetSummary(FlexElement):
     relatedTransactionID: Optional[str] = None
     rtn: Optional[str] = None
     initialInvestment: Optional[decimal.Decimal] = None
-    positionActionID: Optional[str] = None
 
 
 @dataclass(frozen=True)
@@ -1667,7 +1633,6 @@ class Order(FlexElement):
     fineness: Optional[decimal.Decimal] = None
     weight: Optional[str] = None
     positionActionID: Optional[str] = None
-
 
 @dataclass(frozen=True)
 class TradeConfirm(FlexElement):
@@ -2106,6 +2071,7 @@ class Transfer(FlexElement):
     securityID: Optional[str] = None
     cusip: Optional[str] = None
     isin: Optional[str] = None
+    figi: Optional[str] = None
     listingExchange: Optional[str] = None
     underlyingSecurityID: Optional[str] = None
     underlyingListingExchange: Optional[str] = None
@@ -2113,6 +2079,7 @@ class Transfer(FlexElement):
     underlyingConid: Optional[str] = None
     date: Optional[datetime.date] = None
     dateTime: Optional[datetime.datetime] = None
+    settleDate: Optional[datetime.date] = None
     account: Optional[str] = None
     deliveringBroker: Optional[str] = None
     quantity: Optional[decimal.Decimal] = None
@@ -2129,6 +2096,7 @@ class Transfer(FlexElement):
     securityIDType: Optional[str] = None
     underlyingSymbol: Optional[str] = None
     issuer: Optional[str] = None
+    issuerCountryCode: Optional[str] = None
     multiplier: Optional[decimal.Decimal] = None
     strike: Optional[decimal.Decimal] = None
     expiry: Optional[datetime.date] = None
@@ -2140,6 +2108,9 @@ class Transfer(FlexElement):
     pnlAmountInBase: Optional[decimal.Decimal] = None
     fxPnl: Optional[decimal.Decimal] = None
     transactionID: Optional[str] = None
+    levelOfDetail: Optional[str] = None
+    positionInstructionID: Optional[str] = None         # Took a punt on the type here because not seen in XML data
+    positionInstructionSetID: Optional[str] = None      # Took a punt on the type here because not seen in XML data
     serialNumber: Optional[str] = None
     deliveryType: Optional[str] = None
     commodityType: Optional[str] = None
@@ -2268,6 +2239,10 @@ class CorporateAction(FlexElement):
     commodityType: Optional[str] = None
     fineness: Optional[decimal.Decimal] = None
     weight: Optional[str] = None
+    figi: Optional[str] = None
+    issuerCountryCode: Optional[str] = None
+    costBasis: Optional[decimal.Decimal] = None
+    realizedPL: Optional[decimal.Decimal] = None
 
 
 @dataclass(frozen=True)
@@ -2713,6 +2688,17 @@ class TransactionTax(FlexElement):
     source: Optional[str] = None
     code: Tuple[enums.Code, ...] = ()
     levelOfDetail: Optional[str] = None
+    subCategory: Optional[str] = None
+    figi: Optional[str] = None
+    issuerCountryCode: Optional[str] = None
+    settleDate: Optional[datetime.date] = None
+    orderId: Optional[str] = None
+    serialNumber: Optional[str] = None
+    deliveryType: Optional[str] = None
+    commodityType: Optional[str] = None
+    fineness: Optional[decimal.Decimal] = None
+    weight: Optional[str] = None
+
 
 
 @dataclass(frozen=True)
@@ -2841,6 +2827,52 @@ class SLBOpenContract(FlexElement):
     commodityType: Optional[str] = None
     fineness: Optional[decimal.Decimal] = None
     weight: Optional[decimal.Decimal] = None
+
+@dataclass(frozen=True)
+class StockGrantActivity(FlexElement):
+    """Wrapped in <StockGrantActivities>"""
+
+    accountId: Optional[str] = None
+    acctAlias: Optional[str] = None
+    model: Optional[str] = None
+    currency: Optional[str] = None
+    fxRateToBase: Optional[decimal.Decimal] = None
+    assetCategory: Optional[enums.AssetClass] = None        # Called 'AssetClass; in the configuration form                                            # Mentioned in the report configuration screen but not seen in the XML data
+    subCategory: Optional[str] = None
+    symbol: Optional[str] = None                            # symbol of instrument traded, e.g. AAPL, not unique in IBKR as it can exist on different exchanges: (symbol, Exchange, Currency, Asset Type) is unique
+    description: Optional[str] = None
+    conid: Optional[str] = None                             # IBKR identifier of instrument, unique key within IBKR
+    securityID: Optional[str] = None
+    securityIDType: Optional[str] = None
+    cusip: Optional[str] = None
+    isin: Optional[str] = None
+    figi: Optional[str] = None
+    listingExchange: Optional[str] = None
+    underlyingConid: Optional[str] = None
+    underlyingSymbol: Optional[str] = None
+    underlyingSecurityID: Optional[str] = None
+    underlyingListingExchange: Optional[str] = None
+    issuer: Optional[str] = None
+    issuerCountryCode: Optional[str] = None
+    multiplier: Optional[decimal.Decimal] = None
+    strike: Optional[decimal.Decimal] = None
+    expiry: Optional[datetime.date] = None
+    putCall: Optional[enums.PutCall] = None
+    principalAdjustFactor: Optional[decimal.Decimal] = None
+    reportDate: Optional[datetime.date] = None
+    activityDescription: Optional[str] = None
+    awardDate: Optional[datetime.date] = None
+    vestingDate: Optional[datetime.date] = None
+    quantity: Optional[decimal.Decimal] = None
+    price: Optional[decimal.Decimal] = None
+    value: Optional[decimal.Decimal] = None
+    serialNumber: Optional[str] = None
+    deliveryType: Optional[str] = None
+    commodityType: Optional[str] = None
+    fineness: Optional[decimal.Decimal] = None
+    weight: Optional[decimal.Decimal] = None
+
+
 
 #  Type alias to work around https://github.com/python/mypy/issues/1775
 _ClientFeesDetail = ClientFeesDetail
