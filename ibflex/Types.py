@@ -456,7 +456,6 @@ class EquitySummaryByReportDateInBase(FlexElement):
     physDel: Optional[decimal.Decimal] = None
     physDelLong: Optional[decimal.Decimal] = None
     physDelShort: Optional[decimal.Decimal] = None
-    currency: Optional[str] = None
     insuredBankDepositRedemptionCashComponentLong: Optional[decimal.Decimal] = None
     insuredBankDepositRedemptionCashComponentShort: Optional[decimal.Decimal] = None
     incentiveCouponAccrualsLong: Optional[decimal.Decimal] = None
@@ -1133,6 +1132,7 @@ class Trade(FlexElement):
     issuerCountryCode: Optional[str] = None
     rtn: Optional[str] = None
     initialInvestment: Optional[decimal.Decimal] = None
+    positionActionID: Optional[str] = None
 
 
 @dataclass(frozen=True)
